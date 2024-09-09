@@ -1,36 +1,45 @@
+"use client"
+import { useState,useContext } from "react";
+import { AppContext } from "@/lib/context";
 import Image from "next/image";
 import { inventory } from "@/lib/car-inventory";
-import{ CiTrash} from "react-icons/ci";
+import { CiTrash } from "react-icons/ci";
 import { db } from "@/lib/firebase.config";
 import { deleteDoc,doc,updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { Backdrop } from "@mui/material";
+import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 
-export function BookingCard ({carId,timestamp}) {
-    inventory.filter(item => item.id === carId)[0]
+export function BookingCard ({carId,timestamp,docId}) {
+    const [activityIndicator,setActivityIndicator] = useState(false);
+    const car = inventory.filter(item => item.id === carId)[0];
+    const {setPackageId} = useContext(AppContext);
 
     const router = useRouter();
+
     const eventDate = new Date(timestamp);
-    const day = eventDate.toLocalString(`us`,{day: "numeric"});
-    const month =eventDate.toLocaleString(`us`, {month:"short"});
-    const date = `${day} ${month} ${eventDay.getMinutes()}`;
+    const day = eventDate.toLocaleString('us',{day:"numeric"});
+    const month = eventDate.toLocaleString('us',{month:"short"});
+    const date = `${day} ${month} ${eventDate.getFullYear()}`;
+    const time = `${eventDate.getHours()}:${eventDate.getMinutes()}`;
 
-    const now = new Date = new Date ().getTime();
+    // calculate time spent since booking
+    const now = new Date().getTime();
     const diff = now - timestamp;
-    const inMins = diff / 1000/ 60
-    const inHrs = diff / 1000 / 60 / 60
+    const inMins = diff / 1000 / 60;
+    const inHrs = diff / 1000 / 60 / 60;
 
+    // calculate time spent and current bill
     function timeUsed (mins,hrs) {
         let finalizedHrs = 0;
         let finalizedMins = 0;
 
-        if (mins >= 60 ) {
-            finalizedHrs = Math.floor(hrs + (mins/60));
-            finalizedMins = mins - Math.floor(mins % 60);
+        if (mins >= 60) {
+            finalizedHrs = Math.floor(hrs + (mins / 60));
+            finalizedMins = Math.floor(mins % 60);
         } else {
             finalizedHrs = Math.floor(hrs);
-            finalizedMins = Math.floor(mins)
+            finalizedMins = Math.floor(mins);
         }
 
         let baseCost = finalizedHrs * car.rate;
@@ -47,21 +56,22 @@ export function BookingCard ({carId,timestamp}) {
     async function UpdateBooking () {
         setActivityIndicator(true);
 
-        await updateDoc(doc(db,"bookings", docId),{
-            staus:"ended",
+        await updateDoc(doc(db,"bookings",docId),{
+            status: "ended",
             bill: timeUsed(inMins,inHrs).bill
         })
         .then(() => {
             setActivityIndicator(false);
             console.log("updated");
-            router.push(`/pay?id=${docId}`)
+            router.push("/pay");
+            setPackageId(docId)//set packageId for global variable (useContext)
         })
         .catch(e => {
             console.error(e)
             setActivityIndicator(false);
         })
-    }
-  
+    } 
+
     return (
         <>
         <div className="border border-gray-200 rounded-md p-1">
@@ -76,27 +86,32 @@ export function BookingCard ({carId,timestamp}) {
                         <li>{car.class}</li>
                         <li>{`${date}, ${time}`}</li>
                     </ul>
+
                     <div className="flex flex-col gap-1 md:justify-between">
-                        {/* indicator */ }
-                        <p className="text-2xl">
-                            <span>{timeUsed(inMins,inHrs).hrs}Hrs</span>,<span>{timeUsed(inMins,inHrs).mins}</span></p>
+                        {/* indicator */} 
+                        
+                        <p className="text-md">
+                            <span>{timeUsed(inMins,inHrs).hrs}Hrs</span>, <span>{timeUsed(inMins,inHrs).mins}Mins</span>
+                        </p>
 
                         <p className="text-lg text-green-500 font-bold">N{timeUsed(inMins,inHrs).bill}</p>
 
                         <ul className="flex flex-row items-center gap-6">
-                            <li className="text-red-500 font-light text-xs cursor-pointer">End Rental</li>
                             <li
-                            onClick={async()=>{
+                            onClick={UpdateBooking} 
+                            className="text-red-500 font-light text-xs cursor-pointer">End Rental</li>
+                            <li
+                            onClick={async () => {
                                 setActivityIndicator(true);
 
-                                await deleteDoc(doc(db,"bookins",docId))
+                                await deleteDoc(doc(db,"bookings",docId))
                                 .then(() => {
-                                    console.log("deleted")
+                                    console.log("deleted");
                                     setActivityIndicator(false);
                                 })
                                 .catch(error => {
                                     console.error("an error has occured",error);
-                                setActivityIndicator(false);
+                                    setActivityIndicator(false);
                                 })
                             }}
                             ><CiTrash className="text-gray-800 text-lg cursor-pointer"/></li>
@@ -112,6 +127,6 @@ export function BookingCard ({carId,timestamp}) {
         >
             <CircularProgress color="inherit" />
         </Backdrop>
-       </>
+        </>
     )
 }
