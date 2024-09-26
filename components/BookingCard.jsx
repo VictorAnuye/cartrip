@@ -5,7 +5,7 @@ import Image from "next/image";
 import { inventory } from "@/lib/car-inventory";
 import { CiTrash } from "react-icons/ci";
 import { db } from "@/lib/firebase.config";
-import { deleteDoc,doc,updateDoc } from "firebase/firestore";
+// import { deleteDoc,doc,updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';

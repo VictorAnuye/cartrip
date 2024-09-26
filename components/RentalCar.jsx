@@ -6,38 +6,36 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import {TextField,CircularProgress}from "@mui/material";
-import { useFormik} from "formik";
+import { TextField,CircularProgress } from "@mui/material";
+import { useFormik } from "formik";
 import { rules } from "@/helpers/booking_form_validation";
 import { db } from "@/lib/firebase.config";
 import { addDoc,collection } from "firebase/firestore";
-import { useSession } from "next-auth/raect"
+import { useSession } from "next-auth/react";
 
 export default function RentalCar ({carId,carClass,carType,seatCap,hRate,carImg}) {
     const [open, setOpen] = React.useState(false);
     const [progress, setProgress] = React.useState(false);
     const {data:session} = useSession();
 
-    
-
-    const router = useRouter()
+    const router = useRouter();
 
     const handleClickOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
-    const {handleSubmit, handleChange, touched,errors,values} = useFormik({
+    const { handleSubmit,handleChange,touched,errors,values} = useFormik({
         initialValues: {duration:1,phone:"",address:"",comments:""},
-        onSubmit: async ()=> {
+        onSubmit: async () => {
             setProgress(true);
 
-            await addDoc( collection(db,"bookings"),{
+            await addDoc(collection(db,"bookings"),{
                 carId:carId,
                 duration:values.duration,
                 phone:values.phone,
                 address:values.address,
                 comments:values.comments,
                 status:"active",
-                bill:null,
+                bill: null,
                 email:session.user.email,
                 uid:null,
                 timecreated:new Date().getTime()
@@ -50,8 +48,6 @@ export default function RentalCar ({carId,carClass,carType,seatCap,hRate,carImg}
                 setProgress(false);
                 throw new Error(e);
             })
-
-            
         },
         validationSchema:rules
     });
@@ -65,6 +61,7 @@ export default function RentalCar ({carId,carClass,carType,seatCap,hRate,carImg}
             <div className="flex justify-center items-center">
                 <Image height={140} width={160} src={carImg} alt="economy option"/>
             </div>
+
             <button 
             onClick={handleClickOpen}
             className="bg-white px-4 py-2 rounded-md text-xl hover:bg-black hover:text-white">Book Now</button>
@@ -93,14 +90,14 @@ export default function RentalCar ({carId,carClass,carType,seatCap,hRate,carImg}
         >
             <DialogContent>
                 <ul className="grid grid-cols-3 gap-4 bg-gray-100 p-4 rounded-md">
-                    <li className="text-lg text-center border-r border-gray-200 pr-2">{carClass}</li>
-                    <li className="text-lg text-center border-r border-gray-200 pr-2">{carType}</li>
+                    <li className="text-lg text-center border-r border-gray-300 pr-2">{carClass}</li>
+                    <li className="text-lg text-center border-r border-gray-300 pr-2">{carType}</li>
                     <li className="text-lg text-center">N{hRate}</li>
                 </ul>
 
                 <form onSubmit={handleSubmit} className="mt-6">
                     <div className="mb-4">
-                        <TextField 
+                        <TextField
                         label="Hours"
                         className="w-full"
                         variant="outlined"
@@ -108,69 +105,69 @@ export default function RentalCar ({carId,carClass,carType,seatCap,hRate,carImg}
                         id="duration"
                         value={values.duration}
                         onChange={handleChange}/>
-
-                        {errors && touched ?
-                        <span className="text-xs text-red-500 mt-1">{errors.duration}</span> :
+                        {errors && touched ? 
+                        <span className="text-xs text-red-500 mt-1">{errors.duration}</span> : 
                         null}
                     </div>
                     <div className="mb-4">
-                        <TextField 
-                        label="Phone Number"
+                        <TextField
+                        label="Phone number"
                         className="w-full"
                         variant="outlined"
-                        type="number"
+                        type="tel"
                         id="phone"
                         value={values.phone}
                         onChange={handleChange}/>
-
-                        {errors && touched ?
-                        <span className="text-xs text-red-500 mt-1">{errors.phone}</span> :
+                        {errors && touched ? 
+                        <span className="text-xs text-red-500 mt-1">{errors.phone}</span> : 
                         null}
                     </div>
                     <div className="mb-4">
-                        <TextField 
+                        <TextField
                         multiline={true}
                         rows={2}
-                        label="address"
+                        label="Address"
                         className="w-full"
                         variant="outlined"
                         type="text"
                         id="address"
                         value={values.address}
                         onChange={handleChange}/>
-
-                        {errors && touched ?
-                        <span className="text-xs text-red-500 mt-1">{errors.address}</span> :
+                        {errors && touched ? 
+                        <span className="text-xs text-red-500 mt-1">{errors.address}</span> : 
                         null}
                     </div>
                     <div className="mb-4">
-                        <TextField 
+                        <TextField
                         multiline={true}
                         rows={2}
-                        label="comment"
+                        label="Comment"
                         className="w-full"
                         variant="outlined"
                         type="text"
                         id="comments"
                         value={values.comments}
                         onChange={handleChange}/>
-
-                        {errors && touched ?
-                        <span className="text-xs text-red-500 mt-1">{errors.comments}</span> :
+                        {errors && touched ? 
+                        <span className="text-xs text-red-500 mt-1">{errors.comments}</span> : 
                         null}
                     </div>
-                    <Button type="submit"
-                     variant="contained" 
-                     color="success" 
-                     size="large">
-                        {progress ? <CircularProgress/> : <span>Continue</span>}</Button>
+
+                    <Button 
+                    type="submit" 
+                    variant="contained" 
+                    color="success" 
+                    size="large">{progress ? <CircularProgress style={{color:"white"}}/> : <span>Continue</span>}</Button>
                 </form>
             </DialogContent>
 
             <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
+                <Button onClick={handleClose}>Cancel</Button>
             </DialogActions>
         </Dialog>
         </>
     )
 }
+//duration of rental
+//comments
+//date and time of booking

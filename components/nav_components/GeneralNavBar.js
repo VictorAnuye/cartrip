@@ -1,31 +1,33 @@
 import Link from "next/link";
 import { Montserrat } from "next/font/google";
-import { signOut } from "next-auth/react";
-
 
 const montserrat_thin_100 = Montserrat({
     subsets: ["latin"],
     weight: "100"
 })
 
-export function DashboardNavBar ({cssClass}) {
+export function GeneralNavBar ({cssClass}) {
     return (
         <ul className={cssClass}>
         <li>
             <Link
             className={`${montserrat_thin_100} text-yellow-50 text-lg`}
-            href="/dashboard">Home</Link>
+            href="/">Home</Link>
         </li>
         <li>
             <Link
             className={`${montserrat_thin_100} text-yellow-50 text-lg`}
-            href="/dashbard/profile">Profile</Link>
+            href="#">About Us</Link>
         </li>
         <li>
             <Link
-            onClick={signOut}
             className={`${montserrat_thin_100} text-yellow-50 text-lg`}
-            href="#">Sign Out</Link>
+            href="#">Contact Us</Link>
+        </li>
+        <li>
+            <Link
+            className={`${montserrat_thin_100} text-yellow-50 text-lg`}
+            href="/dashboard">Account</Link>
         </li>
     </ul>
     )
