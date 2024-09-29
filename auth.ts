@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import { authConfig } from './auth.config';
 import GoogleProvider from "next-auth/providers/google";
 import Twitter from "next-auth/providers/twitter"; 
-import GitHub from "next-auth/providers/github"
+import GitHub from "next-auth/providers/github";
 
 export const { handlers,auth,signIn,signOut } = NextAuth({
     ...authConfig,
